@@ -91,20 +91,142 @@ const App: React.FC = () => {
     addLog("window.app cleared");
   };
 
+  const PAYMENT_URL = "https://in-development.amazon.com/pay-checkout/payment-selection/v2?payCheckoutRequestId=1acdc6c4-e45c-6a4d-040c-591b22e63085&ingressType=deepLink";
+
+  // Detect if running on iPhone
+  const isIPhone = (): boolean => {
+    return /iPhone/i.test(navigator.userAgent);
+  };
+
+  // Detect if running in Instagram webview
+  const isInstagramWebview = (): boolean => {
+    return /Instagram/i.test(navigator.userAgent);
+  };
+
+  // Approach 1: window.open with _blank
+  const openViaWindowOpen = () => {
+    addLog("Approach 1: window.open(_blank)");
+    const result = window.open(PAYMENT_URL, "_blank");
+    addLog(result ? "Window opened (or popup blocked)" : "window.open returned null");
+  };
+
+  // Approach 2: window.location.href
+  const openViaLocationHref = () => {
+    addLog("Approach 2: window.location.href");
+    window.location.href = PAYMENT_URL;
+  };
+
+  // Approach 3: window.location.assign
+  const openViaLocationAssign = () => {
+    addLog("Approach 3: window.location.assign");
+    window.location.assign(PAYMENT_URL);
+  };
+
+  // Approach 4: window.location.replace
+  const openViaLocationReplace = () => {
+    addLog("Approach 4: window.location.replace");
+    window.location.replace(PAYMENT_URL);
+  };
+
+  // Approach 5: Create anchor tag and click
+  const openViaAnchorClick = () => {
+    addLog("Approach 5: Create <a> tag and click");
+    const a = document.createElement('a');
+    a.href = PAYMENT_URL;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    addLog("Anchor clicked");
+  };
+
+  // Approach 6: Create anchor with _system target (Cordova style)
+  const openViaAnchorSystem = () => {
+    addLog("Approach 6: Create <a> with _system target");
+    const a = document.createElement('a');
+    a.href = PAYMENT_URL;
+    a.target = '_system';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    addLog("Anchor with _system clicked");
+  };
+
+  // Approach 7: Using googlechrome:// scheme
+  const openViaChromeScheme = () => {
+    addLog("Approach 7: googlechrome:// scheme");
+    const chromeUrl = PAYMENT_URL.replace('https://', 'googlechrome://');
+    addLog("Chrome URL: " + chromeUrl);
+    window.location.href = chromeUrl;
+  };
+
+  // Approach 8: Using x-safari-https:// scheme
+  const openViaSafariScheme = () => {
+    addLog("Approach 8: x-safari-https:// scheme");
+    const safariUrl = PAYMENT_URL.replace('https://', 'x-safari-https://');
+    addLog("Safari URL: " + safariUrl);
+    window.location.href = safariUrl;
+  };
+
+  // Approach 9: Using hidden iframe
+  const openViaIframe = () => {
+    addLog("Approach 9: Hidden iframe");
+    const iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    iframe.src = PAYMENT_URL;
+    document.body.appendChild(iframe);
+    addLog("Iframe added to DOM");
+    setTimeout(() => {
+      document.body.removeChild(iframe);
+      addLog("Iframe removed");
+    }, 3000);
+  };
+
+  // Approach 10: Using form submit with _blank target
+  const openViaFormSubmit = () => {
+    addLog("Approach 10: Form submit with _blank");
+    const form = document.createElement('form');
+    form.method = 'GET';
+    form.action = PAYMENT_URL;
+    form.target = '_blank';
+    document.body.appendChild(form);
+    form.submit();
+    document.body.removeChild(form);
+    addLog("Form submitted");
+  };
+
+  // Approach 11: Using window.open with specific features
+  const openViaWindowOpenFeatures = () => {
+    addLog("Approach 11: window.open with features");
+    const features = 'location=yes,height=570,width=520,scrollbars=yes,status=yes';
+    const result = window.open(PAYMENT_URL, '_blank', features);
+    addLog(result ? "Window opened with features" : "window.open returned null");
+  };
+
+  // Approach 12: Meta refresh redirect
+  const openViaMetaRefresh = () => {
+    addLog("Approach 12: Meta refresh redirect");
+    const meta = document.createElement('meta');
+    meta.httpEquiv = 'refresh';
+    meta.content = `0;url=${PAYMENT_URL}`;
+    document.head.appendChild(meta);
+    addLog("Meta refresh tag added");
+  };
+
   const openPaymentUrl = () => {
-    const paymentUrl = "https://in-development.amazon.com/pay-checkout/payment-selection/v2?payCheckoutRequestId=1acdc6c4-e45c-6a4d-040c-591b22e63085&ingressType=deepLink";
-    addLog("Opening payment URL with window.open..."+paymentUrl);
     const userAgent = navigator.userAgent.toLowerCase();
     const isAndroid = userAgent.includes("android");
     
+    addLog("Opening payment URL...");
+    
     if (isAndroid) {
-      // Use intent:// scheme to force external browser on Android
-      const intentUrl = `intent://${paymentUrl.replace('https://', '')}#Intent;scheme=https;action=android.intent.action.VIEW;end`;
+      const intentUrl = `intent://${PAYMENT_URL.replace('https://', '')}#Intent;scheme=https;action=android.intent.action.VIEW;end`;
       addLog("Opening via Android intent:// scheme...");
       window.location.href = intentUrl;
     } else {
       addLog("Opening payment URL with window.open...");
-      window.open(paymentUrl, "_blank");
+      window.open(PAYMENT_URL, "_blank");
     }
   };
 
@@ -140,15 +262,56 @@ const App: React.FC = () => {
         <p><strong>User Agent:</strong> {navigator.userAgent}</p>
         <p><strong>Cookies:</strong> {document.cookie || '(none)'}</p>
         <p><strong>window.app:</strong> {JSON.stringify((window as any).app) || '(undefined)'}</p>
+        <p><strong>iPhone:</strong> {isIPhone() ? '✅ YES' : '❌ NO'}</p>
+        <p><strong>Instagram Webview:</strong> {isInstagramWebview() ? '✅ YES' : '❌ NO'}</p>
       </div>
 
       <div style={{ marginBottom: '20px' }}>
-        <h3>Simulate Conditions</h3>
+        <h3>iOS Instagram External Browser Approaches</h3>
+        <p style={{ color: '#666', fontSize: '14px' }}>Test different methods to open URL in external browser from Instagram webview on iPhone</p>
         
-        
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginTop: '10px' }}>
+          <button onClick={openViaWindowOpen} style={{ ...buttonStyle, backgroundColor: '#007bff', color: 'white' }}>
+            1. window.open(_blank)
+          </button>
+          <button onClick={openViaLocationHref} style={{ ...buttonStyle, backgroundColor: '#28a745', color: 'white' }}>
+            2. location.href
+          </button>
+          <button onClick={openViaLocationAssign} style={{ ...buttonStyle, backgroundColor: '#17a2b8', color: 'white' }}>
+            3. location.assign
+          </button>
+          <button onClick={openViaLocationReplace} style={{ ...buttonStyle, backgroundColor: '#ffc107', color: 'black' }}>
+            4. location.replace
+          </button>
+          <button onClick={openViaAnchorClick} style={{ ...buttonStyle, backgroundColor: '#dc3545', color: 'white' }}>
+            5. Anchor click (_blank)
+          </button>
+          <button onClick={openViaAnchorSystem} style={{ ...buttonStyle, backgroundColor: '#6f42c1', color: 'white' }}>
+            6. Anchor (_system)
+          </button>
+          <button onClick={openViaChromeScheme} style={{ ...buttonStyle, backgroundColor: '#fd7e14', color: 'white' }}>
+            7. googlechrome://
+          </button>
+          <button onClick={openViaSafariScheme} style={{ ...buttonStyle, backgroundColor: '#20c997', color: 'white' }}>
+            8. x-safari-https://
+          </button>
+          <button onClick={openViaIframe} style={{ ...buttonStyle, backgroundColor: '#6c757d', color: 'white' }}>
+            9. Hidden iframe
+          </button>
+          <button onClick={openViaFormSubmit} style={{ ...buttonStyle, backgroundColor: '#e83e8c', color: 'white' }}>
+            10. Form submit
+          </button>
+          <button onClick={openViaWindowOpenFeatures} style={{ ...buttonStyle, backgroundColor: '#343a40', color: 'white' }}>
+            11. window.open(features)
+          </button>
+          <button onClick={openViaMetaRefresh} style={{ ...buttonStyle, backgroundColor: '#795548', color: 'white' }}>
+            12. Meta refresh
+          </button>
+        </div>
       </div>
 
       <div style={{ marginBottom: '20px' }}>
+        <h3>Other Actions</h3>
         {/* <button onClick={testMShop} style={{ ...buttonStyle, backgroundColor: '#007bff', color: 'white', fontSize: '16px', padding: '12px 24px' }}>
           Run isMShop() Test
         </button> */}
