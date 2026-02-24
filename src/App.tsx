@@ -214,6 +214,94 @@ const App: React.FC = () => {
     addLog("Meta refresh tag added");
   };
 
+  // Approach 13: Copy URL to clipboard and show instructions
+  const copyUrlAndShowInstructions = () => {
+    addLog("Approach 13: Copy URL + show instructions");
+    navigator.clipboard.writeText(PAYMENT_URL).then(() => {
+      addLog("URL copied to clipboard!");
+      alert("URL copied! Tap the '...' menu in Instagram and select 'Open in Safari', or paste this URL in Safari.");
+    }).catch(err => {
+      addLog("Clipboard failed: " + err);
+      prompt("Copy this URL and open in Safari:", PAYMENT_URL);
+    });
+  };
+
+  // Approach 14: Try Shortcuts app URL scheme
+  const openViaShortcuts = () => {
+    addLog("Approach 14: Shortcuts app URL scheme");
+    const shortcutUrl = `shortcuts://run-shortcut?name=Open%20URL&input=${encodeURIComponent(PAYMENT_URL)}`;
+    addLog("Shortcuts URL: " + shortcutUrl);
+    window.location.href = shortcutUrl;
+  };
+
+  // Approach 15: Try using a redirect service/intermediate page
+  const openViaRedirectTrick = () => {
+    addLog("Approach 15: Blob URL redirect trick");
+    const html = `<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0;url=${PAYMENT_URL}"></head><body><a href="${PAYMENT_URL}">Click here</a></body></html>`;
+    const blob = new Blob([html], { type: 'text/html' });
+    const blobUrl = URL.createObjectURL(blob);
+    addLog("Blob URL created: " + blobUrl);
+    window.open(blobUrl, '_blank');
+  };
+
+  // Approach 16: window.open with _top target (escape iframe if any)
+  const openViaWindowTop = () => {
+    addLog("Approach 16: window.open with _top");
+    window.open(PAYMENT_URL, '_top');
+  };
+
+  // Approach 17: Assign to top.location
+  const openViaTopLocation = () => {
+    addLog("Approach 17: top.location.href");
+    try {
+      top!.location.href = PAYMENT_URL;
+    } catch (e) {
+      addLog("top.location blocked: " + e);
+      window.location.href = PAYMENT_URL;
+    }
+  };
+
+  // Approach 18: Using intent:// on iOS (Android style, won't work but testing)
+  const openViaIntentIOS = () => {
+    addLog("Approach 18: intent:// scheme on iOS");
+    const intentUrl = `intent://${PAYMENT_URL.replace('https://', '')}#Intent;scheme=https;action=android.intent.action.VIEW;end`;
+    addLog("Intent URL: " + intentUrl);
+    window.location.href = intentUrl;
+  };
+
+  // Approach 19: Open Safari via apple-mobilesafari-tab scheme (undocumented)
+  const openViaSafariTab = () => {
+    addLog("Approach 19: apple-mobilesafari-tab:// (undocumented)");
+    window.location.href = `apple-mobilesafari-tab://${PAYMENT_URL}`;
+  };
+
+  // Approach 20: Try triggering download behavior
+  const openViaDownloadTrigger = () => {
+    addLog("Approach 20: Download attribute trigger");
+    const a = document.createElement('a');
+    a.href = PAYMENT_URL;
+    a.download = '';
+    a.target = '_blank';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
+
+  // Approach 21: Using data URI redirect
+  const openViaDataUri = () => {
+    addLog("Approach 21: data: URI redirect");
+    const dataUri = `data:text/html,<script>window.location='${PAYMENT_URL}'</script>`;
+    window.location.href = dataUri;
+  };
+
+  // Approach 22: Show "Open in Browser" prompt with deep link
+  const showOpenInBrowserPrompt = () => {
+    addLog("Approach 22: Show manual instructions");
+    const msg = `Instagram's browser blocks external links.\n\nTo complete payment:\n1. Tap the "..." menu (top right)\n2. Select "Open in Safari"\n\nOr copy this URL:\n${PAYMENT_URL}`;
+    alert(msg);
+    navigator.clipboard?.writeText(PAYMENT_URL);
+  };
+
   const openPaymentUrl = () => {
     const userAgent = navigator.userAgent.toLowerCase();
     const isAndroid = userAgent.includes("android");
@@ -306,6 +394,36 @@ const App: React.FC = () => {
           </button>
           <button onClick={openViaMetaRefresh} style={{ ...buttonStyle, backgroundColor: '#795548', color: 'white' }}>
             12. Meta refresh
+          </button>
+          <button onClick={copyUrlAndShowInstructions} style={{ ...buttonStyle, backgroundColor: '#198754', color: 'white' }}>
+            13. Copy URL + Instructions
+          </button>
+          <button onClick={openViaShortcuts} style={{ ...buttonStyle, backgroundColor: '#0dcaf0', color: 'black' }}>
+            14. Shortcuts app
+          </button>
+          <button onClick={openViaRedirectTrick} style={{ ...buttonStyle, backgroundColor: '#6610f2', color: 'white' }}>
+            15. Blob redirect
+          </button>
+          <button onClick={openViaWindowTop} style={{ ...buttonStyle, backgroundColor: '#d63384', color: 'white' }}>
+            16. window.open(_top)
+          </button>
+          <button onClick={openViaTopLocation} style={{ ...buttonStyle, backgroundColor: '#ab47bc', color: 'white' }}>
+            17. top.location.href
+          </button>
+          <button onClick={openViaIntentIOS} style={{ ...buttonStyle, backgroundColor: '#ff7043', color: 'white' }}>
+            18. intent:// (iOS test)
+          </button>
+          <button onClick={openViaSafariTab} style={{ ...buttonStyle, backgroundColor: '#26a69a', color: 'white' }}>
+            19. apple-mobilesafari-tab://
+          </button>
+          <button onClick={openViaDownloadTrigger} style={{ ...buttonStyle, backgroundColor: '#5c6bc0', color: 'white' }}>
+            20. Download trigger
+          </button>
+          <button onClick={openViaDataUri} style={{ ...buttonStyle, backgroundColor: '#8d6e63', color: 'white' }}>
+            21. data: URI
+          </button>
+          <button onClick={showOpenInBrowserPrompt} style={{ ...buttonStyle, backgroundColor: '#ef5350', color: 'white' }}>
+            22. Show Instructions
           </button>
         </div>
       </div>
