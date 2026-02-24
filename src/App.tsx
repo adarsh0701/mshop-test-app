@@ -91,7 +91,7 @@ const App: React.FC = () => {
     addLog("window.app cleared");
   };
 
-  const PAYMENT_URL = "https://in-development.amazon.com/pay-checkout/";
+  const PAYMENT_URL = "https://www.amazon.in/";
 
   // Detect if running on iPhone
   const isIPhone = (): boolean => {
