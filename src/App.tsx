@@ -103,167 +103,48 @@ const App: React.FC = () => {
     return /Instagram/i.test(navigator.userAgent);
   };
 
-  // Approach 1: window.open with _blank
-  const openViaWindowOpen = () => {
-    addLog("Approach 1: window.open(_blank)");
-    const result = window.open(PAYMENT_URL, "_blank");
-    addLog(result ? "Window opened (or popup blocked)" : "window.open returned null");
-  };
-
-  // Approach 2: window.location.href
-  const openViaLocationHref = () => {
-    addLog("Approach 2: window.location.href");
-    window.location.href = PAYMENT_URL;
-  };
-
-  // Approach 3: window.location.assign
-  const openViaLocationAssign = () => {
-    addLog("Approach 3: window.location.assign");
-    window.location.assign(PAYMENT_URL);
-  };
-
-  // Approach 4: window.location.replace
-  const openViaLocationReplace = () => {
-    addLog("Approach 4: window.location.replace");
-    window.location.replace(PAYMENT_URL);
-  };
-
-  // Approach 5: Create anchor tag and click
-  const openViaAnchorClick = () => {
-    addLog("Approach 5: Create <a> tag and click");
-    const a = document.createElement('a');
-    a.href = PAYMENT_URL;
-    a.target = '_blank';
-    a.rel = 'noopener noreferrer';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    addLog("Anchor clicked");
-  };
-
-  // Approach 6: Create anchor with _system target (Cordova style)
-  const openViaAnchorSystem = () => {
-    addLog("Approach 6: Create <a> with _system target");
-    const a = document.createElement('a');
-    a.href = PAYMENT_URL;
-    a.target = '_system';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    addLog("Anchor with _system clicked");
-  };
-
-  // Approach 7: Using googlechrome:// scheme
+  // Approach 1: googlechrome:// scheme (CONFIRMED WORKING)
   const openViaChromeScheme = () => {
-    addLog("Approach 7: googlechrome:// scheme");
+    addLog("Approach 1: googlechrome:// scheme");
     const chromeUrl = PAYMENT_URL.replace('https://', 'googlechrome://');
     addLog("Chrome URL: " + chromeUrl);
     window.location.href = chromeUrl;
   };
 
-  // Approach 8: Try multiple Safari-related schemes
-  const openViaSafariScheme = () => {
-    addLog("Approach 8: Trying x-safari://");
-    window.location.href = `x-safari://${PAYMENT_URL}`;
+  // Approach 2: Blob download trick - create a fake file download
+  // Instagram's webview can't handle downloads, so iOS hands it off to Safari
+  const openViaBlobDownload = () => {
+    addLog("Approach 2: Blob octet-stream download trick");
+    const blob = new Blob([PAYMENT_URL], { type: 'application/octet-stream' });
+    const blobUrl = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = blobUrl;
+    a.download = 'redirect.html';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(blobUrl);
+    addLog("Blob download triggered");
   };
 
-  // Approach 8b: Long press link overlay (most reliable for iOS Instagram)
-  const openViaSafari8b = () => {
-    addLog("Approach 8b: Showing long-press link overlay");
-    const overlay = document.createElement('div');
-    overlay.id = 'safari-overlay';
-    overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.95);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;';
-    overlay.innerHTML = `
-      <p style="color:white;font-size:18px;text-align:center;margin-bottom:20px;font-weight:bold;">To open in Safari:</p>
-      <p style="color:#aaa;font-size:14px;text-align:center;margin-bottom:20px;">Long press the link below → Select "Open in Safari"</p>
-      <a href="${PAYMENT_URL}" style="color:#007AFF;font-size:14px;word-break:break-all;text-align:center;padding:15px;background:white;border-radius:10px;max-width:90%;display:block;">${PAYMENT_URL.substring(0, 50)}...</a>
-      <button onclick="document.getElementById('safari-overlay').remove()" style="margin-top:30px;padding:12px 40px;font-size:16px;border-radius:8px;border:none;background:#ff3b30;color:white;">Close</button>
-    `;
-    document.body.appendChild(overlay);
-  };
-
-  // Approach 8e: Try safari-https:// scheme
-  const openViaSafari8e = () => {
-    addLog("Approach 8e: safari-https:// scheme");
-    window.location.href = `safari-https://${PAYMENT_URL.replace('https://', '')}`;
-  };
-
-  // Approach 9: Using hidden iframe
-  const openViaIframe = () => {
-    addLog("Approach 9: Hidden iframe");
-    const iframe = document.createElement('iframe');
-    iframe.style.display = 'none';
-    iframe.src = PAYMENT_URL;
-    document.body.appendChild(iframe);
-    addLog("Iframe added to DOM");
-    setTimeout(() => {
-      document.body.removeChild(iframe);
-      addLog("Iframe removed");
-    }, 3000);
-  };
-
-  // Approach 11: Using window.open with specific features
-  const openViaWindowOpenFeatures = () => {
-    addLog("Approach 11: window.open with features");
-    const features = 'location=yes,height=570,width=520,scrollbars=yes,status=yes';
-    const result = window.open(PAYMENT_URL, '_blank', features);
-    addLog(result ? "Window opened with features" : "window.open returned null");
-  };
-
-  // Approach 12: Meta refresh redirect
-  const openViaMetaRefresh = () => {
-    addLog("Approach 12: Meta refresh redirect");
-    const meta = document.createElement('meta');
-    meta.httpEquiv = 'refresh';
-    meta.content = `0;url=${PAYMENT_URL}`;
-    document.head.appendChild(meta);
-    addLog("Meta refresh tag added");
-  };
-
-  // Approach 15: Try using a redirect service/intermediate page
-  const openViaRedirectTrick = () => {
-    addLog("Approach 15: Blob URL redirect trick");
-    const html = `<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0;url=${PAYMENT_URL}"></head><body><a href="${PAYMENT_URL}">Click here</a></body></html>`;
+  // Approach 3: Blob HTML download with meta refresh redirect
+  const openViaBlobHtmlRedirect = () => {
+    addLog("Approach 3: Blob HTML with meta refresh redirect");
+    const html = `<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0;url=${PAYMENT_URL}"><title>Redirecting...</title></head><body><a href="${PAYMENT_URL}">Click here if not redirected</a></body></html>`;
     const blob = new Blob([html], { type: 'text/html' });
     const blobUrl = URL.createObjectURL(blob);
-    addLog("Blob URL created: " + blobUrl);
-    window.open(blobUrl, '_blank');
+    const a = document.createElement('a');
+    a.href = blobUrl;
+    a.download = 'payment.html';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    addLog("HTML blob download triggered");
   };
 
-  // Approach 16: window.open with _top target (escape iframe if any)
-  const openViaWindowTop = () => {
-    addLog("Approach 16: window.open with _top");
-    window.open(PAYMENT_URL, '_top');
-  };
-
-  // Approach 17: Assign to top.location
-  const openViaTopLocation = () => {
-    addLog("Approach 17: top.location.href");
-    try {
-      top!.location.href = PAYMENT_URL;
-    } catch (e) {
-      addLog("top.location blocked: " + e);
-      window.location.href = PAYMENT_URL;
-    }
-  };
-
-  // Approach 18: Using intent:// on iOS (Android style, won't work but testing)
-  const openViaIntentIOS = () => {
-    addLog("Approach 18: intent:// scheme on iOS");
-    const intentUrl = `intent://${PAYMENT_URL.replace('https://', '')}#Intent;scheme=https;action=android.intent.action.VIEW;end`;
-    addLog("Intent URL: " + intentUrl);
-    window.location.href = intentUrl;
-  };
-
-  // Approach 19: Open Safari via apple-mobilesafari-tab scheme (undocumented)
-  const openViaSafariTab = () => {
-    addLog("Approach 19: apple-mobilesafari-tab:// (undocumented)");
-    window.location.href = `apple-mobilesafari-tab://${PAYMENT_URL}`;
-  };
-
-  // Approach 20: Try triggering download behavior
-  const openViaDownloadTrigger = () => {
-    addLog("Approach 20: Download attribute trigger");
+  // Approach 4: Anchor with download attribute (no blob)
+  const openViaDownloadAttr = () => {
+    addLog("Approach 4: Anchor with download attribute");
     const a = document.createElement('a');
     a.href = PAYMENT_URL;
     a.download = '';
@@ -271,13 +152,103 @@ const App: React.FC = () => {
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
+    addLog("Download anchor clicked");
   };
 
-  // Approach 21: Using data URI redirect
-  const openViaDataUri = () => {
-    addLog("Approach 21: data: URI redirect");
-    const dataUri = `data:text/html,<script>window.location='${PAYMENT_URL}'</script>`;
-    window.location.href = dataUri;
+  // Approach 5: googlechromes:// (for https URLs specifically)
+  const openViaChromeSecureScheme = () => {
+    addLog("Approach 5: googlechromes:// scheme (secure)");
+    const chromeUrl = PAYMENT_URL.replace('https://', 'googlechromes://');
+    addLog("Chrome secure URL: " + chromeUrl);
+    window.location.href = chromeUrl;
+  };
+
+  // Approach 6: Create a PDF blob download (iOS opens PDFs in Safari)
+  const openViaPdfTrick = () => {
+    addLog("Approach 6: PDF blob trick");
+    // Minimal PDF that redirects - iOS will try to open in Safari/Preview
+    const pdfContent = `%PDF-1.0
+1 0 obj<</Type/Catalog/Pages 2 0 R/OpenAction<</S/URI/URI(${PAYMENT_URL})>>>>endobj
+2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1>>endobj
+3 0 obj<</Type/Page/MediaBox[0 0 612 792]/Parent 2 0 R>>endobj
+xref
+0 4
+trailer<</Size 4/Root 1 0 R>>
+startxref
+0
+%%EOF`;
+    const blob = new Blob([pdfContent], { type: 'application/pdf' });
+    const blobUrl = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = blobUrl;
+    a.download = 'payment.pdf';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    addLog("PDF blob download triggered");
+  };
+
+  // Approach 7: window.open with blob URL
+  const openViaWindowOpenBlob = () => {
+    addLog("Approach 7: window.open with blob URL");
+    const html = `<!DOCTYPE html><html><head><script>window.location.href='${PAYMENT_URL}';</script></head><body></body></html>`;
+    const blob = new Blob([html], { type: 'text/html' });
+    const blobUrl = URL.createObjectURL(blob);
+    window.open(blobUrl, '_blank');
+    addLog("Blob URL opened via window.open");
+  };
+
+  // Approach 8: Fetch + blob download (server-like Content-Disposition trick)
+  const openViaFetchDownload = () => {
+    addLog("Approach 8: Fetch + blob download trick");
+    fetch(PAYMENT_URL, { mode: 'no-cors' })
+      .then(() => {
+        // Even if fetch fails due to CORS, trigger a download
+        const a = document.createElement('a');
+        a.href = PAYMENT_URL;
+        a.setAttribute('download', '');
+        a.setAttribute('target', '_blank');
+        a.type = 'application/octet-stream';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        addLog("Fetch download triggered");
+      })
+      .catch(err => {
+        addLog("Fetch error (expected): " + err);
+        // Fallback: try direct download
+        window.location.href = PAYMENT_URL;
+      });
+  };
+
+  // Approach 9: Create iframe with srcdoc containing redirect
+  const openViaIframeSrcdoc = () => {
+    addLog("Approach 9: iframe srcdoc redirect");
+    const iframe = document.createElement('iframe');
+    iframe.srcdoc = `<html><head><meta http-equiv="refresh" content="0;url=${PAYMENT_URL}"></head></html>`;
+    iframe.style.display = 'none';
+    document.body.appendChild(iframe);
+    addLog("iframe srcdoc added");
+    setTimeout(() => {
+      document.body.removeChild(iframe);
+    }, 3000);
+  };
+
+  // Approach 10: navigator.share API (opens native share sheet, user picks Safari)
+  const openViaShareApi = () => {
+    addLog("Approach 10: navigator.share API");
+    if (navigator.share) {
+      navigator.share({
+        title: 'Complete Payment',
+        url: PAYMENT_URL,
+      }).then(() => {
+        addLog("Share dialog opened");
+      }).catch(err => {
+        addLog("Share error: " + err);
+      });
+    } else {
+      addLog("navigator.share not supported");
+    }
   };
 
   const openPaymentUrl = () => {
@@ -333,69 +304,39 @@ const App: React.FC = () => {
       </div>
 
       <div style={{ marginBottom: '20px' }}>
-        <h3>iOS Instagram External Browser Approaches</h3>
-        <p style={{ color: '#666', fontSize: '14px' }}>Test different methods to open URL in external browser from Instagram webview on iPhone</p>
+        <h3>iOS Instagram → External Browser Approaches</h3>
+        <p style={{ color: '#666', fontSize: '14px' }}>Test methods to escape Instagram webview on iPhone</p>
         
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginTop: '10px' }}>
-          <button onClick={openViaWindowOpen} style={{ ...buttonStyle, backgroundColor: '#007bff', color: 'white' }}>
-            1. window.open(_blank)
+          <button onClick={openViaChromeScheme} style={{ ...buttonStyle, backgroundColor: '#4285F4', color: 'white' }}>
+            1. googlechrome:// ✅
           </button>
-          <button onClick={openViaLocationHref} style={{ ...buttonStyle, backgroundColor: '#28a745', color: 'white' }}>
-            2. location.href
+          <button onClick={openViaBlobDownload} style={{ ...buttonStyle, backgroundColor: '#dc3545', color: 'white' }}>
+            2. Blob octet-stream download
           </button>
-          <button onClick={openViaLocationAssign} style={{ ...buttonStyle, backgroundColor: '#17a2b8', color: 'white' }}>
-            3. location.assign
+          <button onClick={openViaBlobHtmlRedirect} style={{ ...buttonStyle, backgroundColor: '#28a745', color: 'white' }}>
+            3. Blob HTML + meta refresh
           </button>
-          <button onClick={openViaLocationReplace} style={{ ...buttonStyle, backgroundColor: '#ffc107', color: 'black' }}>
-            4. location.replace
+          <button onClick={openViaDownloadAttr} style={{ ...buttonStyle, backgroundColor: '#fd7e14', color: 'white' }}>
+            4. Anchor download attr
           </button>
-          <button onClick={openViaAnchorClick} style={{ ...buttonStyle, backgroundColor: '#dc3545', color: 'white' }}>
-            5. Anchor click (_blank)
+          <button onClick={openViaChromeSecureScheme} style={{ ...buttonStyle, backgroundColor: '#0d6efd', color: 'white' }}>
+            5. googlechromes://
           </button>
-          <button onClick={openViaAnchorSystem} style={{ ...buttonStyle, backgroundColor: '#6f42c1', color: 'white' }}>
-            6. Anchor (_system)
+          <button onClick={openViaPdfTrick} style={{ ...buttonStyle, backgroundColor: '#6f42c1', color: 'white' }}>
+            6. PDF blob trick
           </button>
-          <button onClick={openViaChromeScheme} style={{ ...buttonStyle, backgroundColor: '#fd7e14', color: 'white' }}>
-            7. googlechrome://
+          <button onClick={openViaWindowOpenBlob} style={{ ...buttonStyle, backgroundColor: '#343a40', color: 'white' }}>
+            7. window.open blob
           </button>
-          <button onClick={openViaSafariScheme} style={{ ...buttonStyle, backgroundColor: '#20c997', color: 'white' }}>
-            8. x-safari://
+          <button onClick={openViaFetchDownload} style={{ ...buttonStyle, backgroundColor: '#17a2b8', color: 'white' }}>
+            8. Fetch + download
           </button>
-          <button onClick={openViaSafari8b} style={{ ...buttonStyle, backgroundColor: '#0d6efd', color: 'white' }}>
-            8b. Long-press link
+          <button onClick={openViaIframeSrcdoc} style={{ ...buttonStyle, backgroundColor: '#6c757d', color: 'white' }}>
+            9. iframe srcdoc
           </button>
-          <button onClick={openViaSafari8e} style={{ ...buttonStyle, backgroundColor: '#fd7e14', color: 'white' }}>
-            8e. safari-https://
-          </button>
-          <button onClick={openViaIframe} style={{ ...buttonStyle, backgroundColor: '#6c757d', color: 'white' }}>
-            9. Hidden iframe
-          </button>
-          <button onClick={openViaWindowOpenFeatures} style={{ ...buttonStyle, backgroundColor: '#343a40', color: 'white' }}>
-            11. window.open(features)
-          </button>
-          <button onClick={openViaMetaRefresh} style={{ ...buttonStyle, backgroundColor: '#795548', color: 'white' }}>
-            12. Meta refresh
-          </button>
-          <button onClick={openViaRedirectTrick} style={{ ...buttonStyle, backgroundColor: '#6610f2', color: 'white' }}>
-            15. Blob redirect
-          </button>
-          <button onClick={openViaWindowTop} style={{ ...buttonStyle, backgroundColor: '#d63384', color: 'white' }}>
-            16. window.open(_top)
-          </button>
-          <button onClick={openViaTopLocation} style={{ ...buttonStyle, backgroundColor: '#ab47bc', color: 'white' }}>
-            17. top.location.href
-          </button>
-          <button onClick={openViaIntentIOS} style={{ ...buttonStyle, backgroundColor: '#ff7043', color: 'white' }}>
-            18. intent:// (iOS test)
-          </button>
-          <button onClick={openViaSafariTab} style={{ ...buttonStyle, backgroundColor: '#26a69a', color: 'white' }}>
-            19. apple-mobilesafari-tab://
-          </button>
-          <button onClick={openViaDownloadTrigger} style={{ ...buttonStyle, backgroundColor: '#5c6bc0', color: 'white' }}>
-            20. Download trigger
-          </button>
-          <button onClick={openViaDataUri} style={{ ...buttonStyle, backgroundColor: '#8d6e63', color: 'white' }}>
-            21. data: URI
+          <button onClick={openViaShareApi} style={{ ...buttonStyle, backgroundColor: '#198754', color: 'white' }}>
+            10. navigator.share
           </button>
         </div>
       </div>
