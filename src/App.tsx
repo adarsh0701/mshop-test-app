@@ -161,12 +161,31 @@ const App: React.FC = () => {
     window.location.href = chromeUrl;
   };
 
-  // Approach 8: Using x-safari-https:// scheme
+  // Approach 8: Try multiple Safari-related schemes
   const openViaSafariScheme = () => {
-    addLog("Approach 8: x-safari-https:// scheme");
-    const safariUrl = PAYMENT_URL.replace('https://', 'x-safari-https://');
-    addLog("Safari URL: " + safariUrl);
-    window.location.href = safariUrl;
+    addLog("Approach 8: Trying x-safari://");
+    window.location.href = `x-safari://${PAYMENT_URL}`;
+  };
+
+  // Approach 8b: Long press link overlay (most reliable for iOS Instagram)
+  const openViaSafari8b = () => {
+    addLog("Approach 8b: Showing long-press link overlay");
+    const overlay = document.createElement('div');
+    overlay.id = 'safari-overlay';
+    overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.95);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;';
+    overlay.innerHTML = `
+      <p style="color:white;font-size:18px;text-align:center;margin-bottom:20px;font-weight:bold;">To open in Safari:</p>
+      <p style="color:#aaa;font-size:14px;text-align:center;margin-bottom:20px;">Long press the link below → Select "Open in Safari"</p>
+      <a href="${PAYMENT_URL}" style="color:#007AFF;font-size:14px;word-break:break-all;text-align:center;padding:15px;background:white;border-radius:10px;max-width:90%;display:block;">${PAYMENT_URL.substring(0, 50)}...</a>
+      <button onclick="document.getElementById('safari-overlay').remove()" style="margin-top:30px;padding:12px 40px;font-size:16px;border-radius:8px;border:none;background:#ff3b30;color:white;">Close</button>
+    `;
+    document.body.appendChild(overlay);
+  };
+
+  // Approach 8e: Try safari-https:// scheme
+  const openViaSafari8e = () => {
+    addLog("Approach 8e: safari-https:// scheme");
+    window.location.href = `safari-https://${PAYMENT_URL.replace('https://', '')}`;
   };
 
   // Approach 9: Using hidden iframe
@@ -181,19 +200,6 @@ const App: React.FC = () => {
       document.body.removeChild(iframe);
       addLog("Iframe removed");
     }, 3000);
-  };
-
-  // Approach 10: Using form submit with _blank target
-  const openViaFormSubmit = () => {
-    addLog("Approach 10: Form submit with _blank");
-    const form = document.createElement('form');
-    form.method = 'GET';
-    form.action = PAYMENT_URL;
-    form.target = '_blank';
-    document.body.appendChild(form);
-    form.submit();
-    document.body.removeChild(form);
-    addLog("Form submitted");
   };
 
   // Approach 11: Using window.open with specific features
@@ -212,26 +218,6 @@ const App: React.FC = () => {
     meta.content = `0;url=${PAYMENT_URL}`;
     document.head.appendChild(meta);
     addLog("Meta refresh tag added");
-  };
-
-  // Approach 13: Copy URL to clipboard and show instructions
-  const copyUrlAndShowInstructions = () => {
-    addLog("Approach 13: Copy URL + show instructions");
-    navigator.clipboard.writeText(PAYMENT_URL).then(() => {
-      addLog("URL copied to clipboard!");
-      alert("URL copied! Tap the '...' menu in Instagram and select 'Open in Safari', or paste this URL in Safari.");
-    }).catch(err => {
-      addLog("Clipboard failed: " + err);
-      prompt("Copy this URL and open in Safari:", PAYMENT_URL);
-    });
-  };
-
-  // Approach 14: Try Shortcuts app URL scheme
-  const openViaShortcuts = () => {
-    addLog("Approach 14: Shortcuts app URL scheme");
-    const shortcutUrl = `shortcuts://run-shortcut?name=Open%20URL&input=${encodeURIComponent(PAYMENT_URL)}`;
-    addLog("Shortcuts URL: " + shortcutUrl);
-    window.location.href = shortcutUrl;
   };
 
   // Approach 15: Try using a redirect service/intermediate page
@@ -292,14 +278,6 @@ const App: React.FC = () => {
     addLog("Approach 21: data: URI redirect");
     const dataUri = `data:text/html,<script>window.location='${PAYMENT_URL}'</script>`;
     window.location.href = dataUri;
-  };
-
-  // Approach 22: Show "Open in Browser" prompt with deep link
-  const showOpenInBrowserPrompt = () => {
-    addLog("Approach 22: Show manual instructions");
-    const msg = `Instagram's browser blocks external links.\n\nTo complete payment:\n1. Tap the "..." menu (top right)\n2. Select "Open in Safari"\n\nOr copy this URL:\n${PAYMENT_URL}`;
-    alert(msg);
-    navigator.clipboard?.writeText(PAYMENT_URL);
   };
 
   const openPaymentUrl = () => {
@@ -381,25 +359,22 @@ const App: React.FC = () => {
             7. googlechrome://
           </button>
           <button onClick={openViaSafariScheme} style={{ ...buttonStyle, backgroundColor: '#20c997', color: 'white' }}>
-            8. x-safari-https://
+            8. x-safari://
+          </button>
+          <button onClick={openViaSafari8b} style={{ ...buttonStyle, backgroundColor: '#0d6efd', color: 'white' }}>
+            8b. Long-press link
+          </button>
+          <button onClick={openViaSafari8e} style={{ ...buttonStyle, backgroundColor: '#fd7e14', color: 'white' }}>
+            8e. safari-https://
           </button>
           <button onClick={openViaIframe} style={{ ...buttonStyle, backgroundColor: '#6c757d', color: 'white' }}>
             9. Hidden iframe
-          </button>
-          <button onClick={openViaFormSubmit} style={{ ...buttonStyle, backgroundColor: '#e83e8c', color: 'white' }}>
-            10. Form submit
           </button>
           <button onClick={openViaWindowOpenFeatures} style={{ ...buttonStyle, backgroundColor: '#343a40', color: 'white' }}>
             11. window.open(features)
           </button>
           <button onClick={openViaMetaRefresh} style={{ ...buttonStyle, backgroundColor: '#795548', color: 'white' }}>
             12. Meta refresh
-          </button>
-          <button onClick={copyUrlAndShowInstructions} style={{ ...buttonStyle, backgroundColor: '#198754', color: 'white' }}>
-            13. Copy URL + Instructions
-          </button>
-          <button onClick={openViaShortcuts} style={{ ...buttonStyle, backgroundColor: '#0dcaf0', color: 'black' }}>
-            14. Shortcuts app
           </button>
           <button onClick={openViaRedirectTrick} style={{ ...buttonStyle, backgroundColor: '#6610f2', color: 'white' }}>
             15. Blob redirect
@@ -421,9 +396,6 @@ const App: React.FC = () => {
           </button>
           <button onClick={openViaDataUri} style={{ ...buttonStyle, backgroundColor: '#8d6e63', color: 'white' }}>
             21. data: URI
-          </button>
-          <button onClick={showOpenInBrowserPrompt} style={{ ...buttonStyle, backgroundColor: '#ef5350', color: 'white' }}>
-            22. Show Instructions
           </button>
         </div>
       </div>
