@@ -111,21 +111,22 @@ const App: React.FC = () => {
     window.location.href = chromeUrl;
   };
 
-  // Approach 2: Blob download trick - create a fake file download
-  // Instagram's webview can't handle downloads, so iOS hands it off to Safari
-  const openViaBlobDownload = () => {
-    addLog("Approach 2: Blob octet-stream download trick");
-    const blob = new Blob([PAYMENT_URL], { type: 'application/octet-stream' });
-    const blobUrl = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = blobUrl;
-    a.download = 'redirect.html';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(blobUrl);
-    addLog("Blob download triggered");
+  // Approach 1b: x-safari-https scheme (com.apple.mobilesafari)
+  const openViaSafariTabScheme = () => {
+    const safariUrl = `x-web-search://com-apple-mobilesafari-tab:${PAYMENT_URL}`;
+    addLog("Approach 1b: com-apple-mobilesafari-tab scheme");
+    addLog("Safari URL: " + safariUrl);
+    window.location.href = safariUrl;
   };
+
+  // Approach 1c: Direct com-apple-mobilesafari-tab
+  const openViaSafariTabDirect = () => {
+    const safariUrl = `com-apple-mobilesafari-tab:${PAYMENT_URL}`;
+    addLog("Approach 1c: com-apple-mobilesafari-tab: direct");
+    addLog("Safari URL: " + safariUrl);
+    window.location.href = safariUrl;
+  };
+
 
   // Approach 3: Blob HTML download with meta refresh redirect
   const openViaBlobHtmlRedirect = () => {
@@ -311,8 +312,11 @@ startxref
           <button onClick={openViaChromeScheme} style={{ ...buttonStyle, backgroundColor: '#4285F4', color: 'white' }}>
             1. googlechrome:// ✅
           </button>
-          <button onClick={openViaBlobDownload} style={{ ...buttonStyle, backgroundColor: '#dc3545', color: 'white' }}>
-            2. Blob octet-stream download
+          <button onClick={openViaSafariTabScheme} style={{ ...buttonStyle, backgroundColor: '#007AFF', color: 'white' }}>
+            1b. x-web-search://com-apple-mobilesafari-tab
+          </button>
+          <button onClick={openViaSafariTabDirect} style={{ ...buttonStyle, backgroundColor: '#34C759', color: 'white' }}>
+            1c. com-apple-mobilesafari-tab:
           </button>
           <button onClick={openViaBlobHtmlRedirect} style={{ ...buttonStyle, backgroundColor: '#28a745', color: 'white' }}>
             3. Blob HTML + meta refresh
