@@ -137,7 +137,7 @@ const App: React.FC = () => {
 
   // Approach 1e: x-safari- with window.open (iOS 17+ confirmed working)
   const openViaXSafariWindowOpen = () => {
-    const safariUrl = `x-safari-${PAYMENT_URL.replace(/^http?:\/\//, "https://")}`;
+    const safariUrl = `x-safari-${PAYMENT_URL}`;
     addLog("Approach 1e: x-safari- via window.open(_blank)");
     addLog("Safari URL: " + safariUrl);
     window.open(safariUrl, "_blank");
