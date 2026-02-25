@@ -349,7 +349,7 @@ startxref
           </button>
           <button onClick={openViaWindowOpen} style={{ ...buttonStyle, backgroundColor: '#007bff', color: 'white' }}>
             1f. window.open
-          </b
+          </button>
           <button onClick={openViaBlobHtmlRedirect} style={{ ...buttonStyle, backgroundColor: '#28a745', color: 'white' }}>
             3. Blob HTML + meta refresh
           </button>
