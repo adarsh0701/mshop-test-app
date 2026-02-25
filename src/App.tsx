@@ -143,6 +143,13 @@ const App: React.FC = () => {
     window.open(safariUrl, "_blank");
   };
 
+  // Approach 1f: plain window.open
+  const openViaWindowOpen = () => {
+    addLog("Approach 1f: window.open(_blank)");
+    addLog("URL: " + PAYMENT_URL);
+    window.open(PAYMENT_URL, "_blank");
+  };
+
 
   // Approach 3: Blob HTML download with meta refresh redirect
   const openViaBlobHtmlRedirect = () => {
@@ -339,6 +346,9 @@ startxref
           </button>
           <button onClick={openViaXSafariWindowOpen} style={{ ...buttonStyle, backgroundColor: '#AF52DE', color: 'white' }}>
             1e. x-safari- window.open ⭐
+          </button>
+          <button onClick={openViaWindowOpen} style={{ ...buttonStyle, backgroundColor: '#007bff', color: 'white' }}>
+            1f. window.open
           </button>
           <button onClick={openViaBlobHtmlRedirect} style={{ ...buttonStyle, backgroundColor: '#28a745', color: 'white' }}>
             3. Blob HTML + meta refresh
