@@ -127,6 +127,14 @@ const App: React.FC = () => {
     window.location.href = safariUrl;
   };
 
+  // Approach 1d: x-safari-https:// scheme
+  const openViaXSafariHttps = () => {
+    const safariUrl = `x-safari-https://${PAYMENT_URL.replace('https://', '')}`;
+    addLog("Approach 1d: x-safari-https://");
+    addLog("Safari URL: " + safariUrl);
+    window.location.href = safariUrl;
+  };
+
 
   // Approach 3: Blob HTML download with meta refresh redirect
   const openViaBlobHtmlRedirect = () => {
@@ -317,6 +325,9 @@ startxref
           </button>
           <button onClick={openViaSafariTabDirect} style={{ ...buttonStyle, backgroundColor: '#34C759', color: 'white' }}>
             1c. com-apple-mobilesafari-tab:
+          </button>
+          <button onClick={openViaXSafariHttps} style={{ ...buttonStyle, backgroundColor: '#FF9500', color: 'white' }}>
+            1d. x-safari-https://
           </button>
           <button onClick={openViaBlobHtmlRedirect} style={{ ...buttonStyle, backgroundColor: '#28a745', color: 'white' }}>
             3. Blob HTML + meta refresh
