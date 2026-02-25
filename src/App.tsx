@@ -91,7 +91,7 @@ const App: React.FC = () => {
     addLog("window.app cleared");
   };
 
-  const PAYMENT_URL = "https://www.amazon.in/pay-checkout/payment-selection/v2?payCheckoutRequestId=0ace49ff-400f-6f1c-4926-b34a20965ea8&ref=LPA_IN&ingressType=deepLink";
+  const PAYMENT_URL = "https://www.amazon.in/pay-checkout/payment-selection/v2?payCheckoutRequestId=acce4a14-d7bf-1632-de41-db1655cff0e6&ref=LPA_IN&ingressType=deepLink";
 
   // Detect if running on iPhone
   const isIPhone = (): boolean => {
@@ -349,7 +349,7 @@ startxref
           </button>
           <button onClick={openViaWindowOpen} style={{ ...buttonStyle, backgroundColor: '#007bff', color: 'white' }}>
             1f. window.open
-          </button>
+          </b
           <button onClick={openViaBlobHtmlRedirect} style={{ ...buttonStyle, backgroundColor: '#28a745', color: 'white' }}>
             3. Blob HTML + meta refresh
           </button>
