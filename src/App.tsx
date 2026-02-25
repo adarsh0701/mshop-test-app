@@ -130,9 +130,17 @@ const App: React.FC = () => {
   // Approach 1d: x-safari-https:// scheme
   const openViaXSafariHttps = () => {
     const safariUrl = `x-safari-https://${PAYMENT_URL.replace('https://', '')}`;
-    addLog("Approach 1d: x-safari-https://");
+    addLog("Approach 1d: x-safari-https:// via location.href");
     addLog("Safari URL: " + safariUrl);
     window.location.href = safariUrl;
+  };
+
+  // Approach 1e: x-safari- with window.open (iOS 17+ confirmed working)
+  const openViaXSafariWindowOpen = () => {
+    const safariUrl = `x-safari-${PAYMENT_URL.replace(/^http?:\/\//, "https://")}`;
+    addLog("Approach 1e: x-safari- via window.open(_blank)");
+    addLog("Safari URL: " + safariUrl);
+    window.open(safariUrl, "_blank");
   };
 
 
@@ -327,7 +335,10 @@ startxref
             1c. com-apple-mobilesafari-tab:
           </button>
           <button onClick={openViaXSafariHttps} style={{ ...buttonStyle, backgroundColor: '#FF9500', color: 'white' }}>
-            1d. x-safari-https://
+            1d. x-safari-https:// (location)
+          </button>
+          <button onClick={openViaXSafariWindowOpen} style={{ ...buttonStyle, backgroundColor: '#AF52DE', color: 'white' }}>
+            1e. x-safari- window.open ⭐
           </button>
           <button onClick={openViaBlobHtmlRedirect} style={{ ...buttonStyle, backgroundColor: '#28a745', color: 'white' }}>
             3. Blob HTML + meta refresh
